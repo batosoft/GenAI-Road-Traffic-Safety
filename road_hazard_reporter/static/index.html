@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Road Hazard Reporter</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #0d6efd;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background-color: #0d6efd;
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+        }
+        .preview-container {
+            max-width: 100%;
+            height: 300px;
+            border: 2px dashed #dee2e6;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .preview-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .result-container {
+            display: none;
+            margin-top: 30px;
+        }
+        .severity-low {
+            color: #198754;
+        }
+        .severity-medium {
+            color: #fd7e14;
+        }
+        .severity-high {
+            color: #dc3545;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Road Hazard Reporter</h1>
+            <p class="lead">Upload images of road damage for AI analysis and reporting</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                Upload Road Damage Image
+            </div>
+            <div class="card-body">
+                <div class="preview-container" id="imagePreview">
+                    <p class="text-muted">Image preview will appear here</p>
+                </div>
+                
+                <form id="uploadForm">
+                    <div class="mb-3">
+                        <label for="imageUpload" class="form-label">Select Image</label>
+                        <input type="file" class="form-control" id="imageUpload" accept="image/jpeg, image/png" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location (optional)</label>
+                        <input type="text" class="form-control" id="location" placeholder="e.g., Main St & 5th Ave, Dubai">
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description (optional)</label>
+                        <textarea class="form-control" id="description" rows="3" placeholder="Describe the damage you observed..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Analyze Damage</button>
+                </form>
+                
+                <div class="loading" id="loadingIndicator">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Analyzing image with AI...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-container" id="resultContainer">
+            <div class="card">
+                <div class="card-header">
+                    Analysis Results
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Damage Type:</h5>
+                            <p id="damageType">-</p>
+                            
+                            <h5>Severity:</h5>
+                            <p id="severityLevel">-</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Safety Impact:</h5>
+                            <p id="safetyImpact">-</p>
+                            
+                            <h5>Recommended Action:</h5>
+                            <p id="recommendedAction">-</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h5>Full Analysis:</h5>
+                        <div class="p-3 bg-light rounded" id="fullAnalysis">
+                            -
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <button class="btn btn-primary" id="generateReportBtn">Generate Report for Authorities</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4" id="reportCard" style="display: none;">
+                <div class="card-header">
+                    Generated Report
+                </div>
+                <div class="card-body">
+                    <h5>Report ID: <span id="reportId">-</span></h5>
+                    <p>Generated on: <span id="reportTimestamp">-</span></p>
+                    
+                    <div class="alert alert-success mt-3">
+                        <p>This report is ready to be submitted to the relevant authorities.</p>
+                        <p class="mb-0">You can download a copy for your records or submit it directly.</p>
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <button class="btn btn-secondary me-2" id="downloadReportBtn">Download Report</button>
+                        <button class="btn btn-success" id="submitReportBtn">Submit to Authorities</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageUpload = document.getElementById('imageUpload');
+            const imagePreview = document.getElementById('imagePreview');
+            const uploadForm = document.getElementById('uploadForm');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const resultContainer = document.getElementById('resultContainer');
+            const generateReportBtn = document.getElementById('generateReportBtn');
+            const reportCard = document.getElementById('reportCard');
+            
+            // Analysis result elements
+            const damageType = document.getElementById('damageType');
+            const severityLevel = document.getElementById('severityLevel');
+            const safetyImpact = document.getElementById('safetyImpact');
+            const recommendedAction = document.getElementById('recommendedAction');
+            const fullAnalysis = document.getElementById('fullAnalysis');
+            
+            // Report elements
+            const reportId = document.getElementById('reportId');
+            const reportTimestamp = document.getElementById('reportTimestamp');
+            
+            // Store analysis results for report generation
+            let analysisResults = null;
+            
+            // Preview uploaded image
+            imageUpload.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Handle form submission
+            uploadForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const file = imageUpload.files[0];
+                if (!file) {
+                    alert('Please select an image to upload');
+                    return;
+                }
+                
+                // Show loading indicator
+                loadingIndicator.style.display = 'block';
+                resultContainer.style.display = 'none';
+                reportCard.style.display = 'none';
+                
+                // Create form data
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const location = document.getElementById('location').value;
+                if (location) {
+                    formData.append('location', location);
+                }
+                
+                const description = document.getElementById('description').value;
+                if (description) {
+                    formData.append('description', description);
+                }
+                
+                // Send request to API
+                fetch('/api/road-hazard/analyze', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Store results for report generation
+                    analysisResults = data;
+                    
+                    // Display results
+                    damageType.textContent = data.damage_type;
+                    
+                    // Set severity with appropriate color
+                    const severity = data.severity.toLowerCase();
+                    severityLevel.textContent = data.severity;
+                    severityLevel.className = '';
+                    if (severity.includes('low')) {
+                        severityLevel.classList.add('severity-low');
+                    } else if (severity.includes('medium')) {
+                        severityLevel.classList.add('severity-medium');
+                    } else if (severity.includes('high')) {
+                        severityLevel.classList.add('severity-high');
+                    }
+                    
+                    safetyImpact.textContent = data.safety_impact;
+                    recommendedAction.textContent = data.recommended_action;
+                    fullAnalysis.textContent = data.full_analysis;
+                    
+                    // Show results
+                    loadingIndicator.style.display = 'none';
+                    resultContainer.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred during analysis. Please try again.');
+                    loadingIndicator.style.display = 'none';
+                });
+            });
+            
+            // Generate report
+            generateReportBtn.addEventListener('click', function() {
+                if (!analysisResults) {
+                    alert('No analysis results available');
+                    return;
+                }
+                
+                fetch('/api/road-hazard/generate-report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(analysisResults)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Display report information
+                    reportId.textContent = data.report.report_id;
+                    reportTimestamp.textContent = data.report.timestamp;
+                    
+                    // Show report card
+                    reportCard.style.display = 'block';
+                    
+                    // Scroll to report
+                    reportCard.scrollIntoView({ behavior: 'smooth' });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while generating the report. Please try again.');
+                });
+            });
+            
+            // Download report (mock functionality)
+            document.getElementById('downloadReportBtn').addEventListener('click', function() {
+                alert('Report download functionality would be implemented here');
+            });
+            
+            // Submit report (mock functionality)
+            document.getElementById('submitReportBtn').addEventListener('click', function() {
+                alert('Report has been submitted to authorities successfully!');
+            });
+        });
+    </script>
+</body>
+</html>

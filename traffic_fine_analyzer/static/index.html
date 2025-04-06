@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salama AI Assistant - Traffic Fine Analyzer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #198754;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background-color: #198754;
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: bold;
+        }
+        .btn-success {
+            background-color: #198754;
+            border-color: #198754;
+        }
+        .btn-success:hover {
+            background-color: #157347;
+            border-color: #146c43;
+        }
+        .fine-entry {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #198754;
+        }
+        .result-container {
+            display: none;
+            margin-top: 30px;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        .analysis-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #198754;
+        }
+        .analysis-section h5 {
+            color: #198754;
+            margin-bottom: 10px;
+        }
+        .statistics-card {
+            background-color: #e9f7ef;
+            border-left: 4px solid #198754;
+        }
+        #fineEntries {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Salama AI Assistant</h1>
+            <p class="lead">Traffic Fine Analyzer for Safer Driving</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                Enter Your Traffic Fine History
+            </div>
+            <div class="card-body">
+                <form id="fineForm">
+                    <div class="mb-3">
+                        <label for="fineDate" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="fineDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fineType" class="form-label">Fine Type</label>
+                        <select class="form-control" id="fineType" required>
+                            <option value="">Select a fine type</option>
+                            <option value="Speeding">Speeding</option>
+                            <option value="Red Light Violation">Red Light Violation</option>
+                            <option value="Illegal Parking">Illegal Parking</option>
+                            <option value="Driving without Seatbelt">Driving without Seatbelt</option>
+                            <option value="Using Phone while Driving">Using Phone while Driving</option>
+                            <option value="Tailgating">Tailgating</option>
+                            <option value="Lane Violation">Lane Violation</option>
+                            <option value="Expired Registration">Expired Registration</option>
+                            <option value="Other">Other (specify in description)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fineAmount" class="form-label">Amount (AED)</label>
+                        <input type="number" class="form-control" id="fineAmount" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fineLocation" class="form-label">Location (optional)</label>
+                        <input type="text" class="form-control" id="fineLocation" placeholder="e.g., Sheikh Zayed Road, Dubai">
+                    </div>
+                    <div class="mb-3">
+                        <label for="fineDescription" class="form-label">Description (optional)</label>
+                        <textarea class="form-control" id="fineDescription" rows="2" placeholder="Additional details about the fine..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">Add Fine</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                Your Fine History
+            </div>
+            <div class="card-body">
+                <div id="fineEntries">
+                    <p class="text-muted text-center" id="noFinesMessage">No fines added yet. Add your fine history above.</p>
+                </div>
+                
+                <div class="mt-3 text-center">
+                    <button class="btn btn-success" id="analyzeBtn" disabled>Analyze My Fine History</button>
+                    <button class="btn btn-outline-secondary ms-2" id="clearBtn" disabled>Clear All</button>
+                </div>
+                
+                <div class="loading" id="loadingIndicator">
+                    <div class="spinner-border text-success" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Analyzing your fine history with Salama AI...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-container" id="resultContainer">
+            <div class="card">
+                <div class="card-header">
+                    Analysis Results
+                </div>
+                <div class="card-body">
+                    <div class="card mb-4 statistics-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Fine Statistics</h5>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <p><strong>Total Fines:</strong> <span id="totalFines">0</span></p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p><strong>Total Amount:</strong> <span id="totalAmount">0</span> AED</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p><strong>Most Common:</strong> <span id="mostCommonFine">-</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <h5>Pattern Analysis</h5>
+                        <div id="patternAnalysis">-</div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <h5>Personalized Safety Tips</h5>
+                        <div id="safetyTips">-</div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <h5>Educational Information</h5>
+                        <div id="educationalInfo">-</div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <h5>Potential Financial Savings</h5>
+                        <div id="financialSavings">-</div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <h5>Recommended Behavioral Changes</h5>
+                        <div id="behavioralChanges">-</div>
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <button class="btn btn-success" id="saveReportBtn">Save Report</button>
+                        <button class="btn btn-outline-success ms-2" id="shareReportBtn">Share Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fineForm = document.getElementById('fineForm');
+            const fineEntries = document.getElementById('fineEntries');
+            const noFinesMessage = document.getElementById('noFinesMessage');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const resultContainer = document.getElementById('resultContainer');
+            
+            // Analysis result elements
+            const totalFines = document.getElementById('totalFines');
+            const totalAmount = document.getElementById('totalAmount');
+            const mostCommonFine = document.getElementById('mostCommonFine');
+            const patternAnalysis = document.getElementById('patternAnalysis');
+            const safetyTips = document.getElementById('safetyTips');
+            const educationalInfo = document.getElementById('educationalInfo');
+            const financialSavings = document.getElementById('financialSavings');
+            const behavioralChanges = document.getElementById('behavioralChanges');
+            
+            // Store fine entries
+            let fines = [];
+            
+            // Handle form submission
+            fineForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const date = document.getElementById('fineDate').value;
+                const type = document.getElementById('fineType').value;
+                const amount = parseFloat(document.getElementById('fineAmount').value);
+                const location = document.getElementById('fineLocation').value;
+                const description = document.getElementById('fineDescription').value;
+                
+                // Add to fines array
+                fines.push({
+                    date: date,
+                    type: type,
+                    amount: amount,
+                    location: location,
+                    description: description
+                });
+                
+                // Update UI
+                updateFinesList();
+                
+                // Reset form
+                fineForm.reset();
+            });
+            
+            // Update fines list in UI
+            function updateFinesList() {
+                if (fines.length === 0) {
+                    noFinesMessage.style.display = 'block';
+                    analyzeBtn.disabled = true;
+                    clearBtn.disabled = true;
+                    return;
+                }
+                
+                noFinesMessage.style.display = 'none';
+                analyzeBtn.disabled = false;
+                clearBtn.disabled = false;
+                
+                // Clear current list
+                fineEntries.innerHTML = '';
+                
+                // Add each fine entry
+                fines.forEach((fine, index) => {
+                    const entryDiv = document.createElement('div');
+                    entryDiv.className = 'fine-entry';
+                    
+                    const formattedDate = new Date(fine.date).toLocaleDateString();
+                    
+                    entryDiv.innerHTML = `
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <strong>${fine.type}</strong> - ${formattedDate}
+                            </div>
+                            <div>
+                                <strong>${fine.amount} AED</strong>
+                                <button class="btn btn-sm btn-outline-danger ms-2 remove-btn" data-index="${index}">×</button>
+                            </div>
+                        </div>
+                        ${fine.location ? `<div class="text-muted small">Location: ${fine.location}</div>` : ''}
+                        ${fine.description ? `<div class="text-muted small">Note: ${fine.description}</div>` : ''}
+                    `;
+                    
+                    fineEntries.appendChild(entryDiv);
+                });
+                
+                // Add event listeners to remove buttons
+                document.querySelectorAll('.remove-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        fines.splice(index, 1);
+                        updateFinesList();
+                    });
+                });
+            }
+            
+            // Clear all fines
+            clearBtn.addEventListener('click', function() {
+                fines = [];
+                updateFinesList();
+                resultContainer.style.display = 'none';
+            });
+            
+            // Analyze fines
+            analyzeBtn.addEventListener('click', function() {
+                if (fines.length === 0) {
+                    alert('Please add at least one fine to analyze');
+                    return;
+                }
+                
+                // Show loading indicator
+                loadingIndicator.style.display = 'block';
+                resultContainer.style.display = 'none';
+                
+                // Prepare data for API
+                const data = {
+                    fines: fines,
+                    user_info: {} // Could add user info here if needed
+                };
+                
+                // Send request to API
+                fetch('/api/traffic-fine/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Display results
+                    totalFines.textContent = data.statistics.total_fines;
+                    totalAmount.textContent = data.statistics.total_amount;
+                    mostCommonFine.textContent = data.statistics.most_common_fine;
+                    
+                    // Display analysis sections
+                    patternAnalysis.innerHTML = formatText(data.analysis.pattern_analysis);
+                    safetyTips.innerHTML = formatText(data.analysis.safety_tips);
+                    educationalInfo.innerHTML = formatText(data.analysis.educational_info);
+                    financialSavings.innerHTML = formatText(data.analysis.financial_savings);
+                    behavioralChanges.innerHTML = formatText(data.analysis.behavioral_changes);
+                    
+                    // Show results
+                    loadingIndicator.style.display = 'none';
+                    resultContainer.style.display = 'block';
+                    
+                    // Scroll to results
+                    resultContainer.scrollIntoView({ behavior: 'smooth' });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred during analysis. Please try again.');
+                    loadingIndicator.style.display = 'none';
+                });
+            });
+            
+            // Format text with line breaks and lists
+            function formatText(text) {
+                if (!text) return '-';
+                
+                // Convert line breaks to HTML
+                let formatted = text.replace(/\n/g, '<br>');
+                
+                // Convert numbered lists (1. Item)
+                formatted = formatted.replace(/(\d+\.\s+[^\n<]+)/g, '<li>$1</li>');
+                if (formatted.includes('<li>')) {
+                    formatted = '<ul>' + formatted + '</ul>';
+                    formatted = formatted.replace(/<br><ul>/g, '<ul>');
+                    formatted = formatted.replace(/<\/ul><br>/g, '</ul>');
+                }
+                
+                return formatted;
+            }
+            
+            // Mock functionality for save/share buttons
+            document.getElementById('saveReportBtn').addEventListener('click', function() {
+                alert('Report saved successfully!');
+            });
+            
+            document.getElementById('shareReportBtn').addEventListener('click', function() {
+                alert('Report shared successfully!');
+            });
+        });
+    </script>
+</body>
+</html>

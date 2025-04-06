@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenAI Road Safety Application</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            background-color: #f1f8ff;
+            border-radius: 10px;
+        }
+        .header h1 {
+            color: #0d6efd;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #6c757d;
+            font-size: 1.2rem;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-header {
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .road-hazard-card .card-header {
+            background-color: #0d6efd;
+            color: white;
+        }
+        .traffic-fine-card .card-header {
+            background-color: #198754;
+            color: white;
+        }
+        .card-body {
+            padding: 30px;
+        }
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #6c757d;
+        }
+        .btn-lg {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 30px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>GenAI Road Safety Application</h1>
+            <p class="lead">Enhancing road safety with artificial intelligence</p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card road-hazard-card">
+                    <div class="card-header">
+                        Road Hazard Reporter
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="feature-icon">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            🛣️
+                        </div>
+                        <h3 class="mb-3">Report Road Damage</h3>
+                        <p class="mb-4">Upload images of road damage for AI analysis. Our system will classify the type of damage, assess its severity, and generate a structured report for submission to authorities.</p>
+                        <a href="/road-hazard-reporter/" class="btn btn-primary btn-lg">Report Road Damage</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card traffic-fine-card">
+                    <div class="card-header">
+                        Salama AI Assistant
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="feature-icon">
+                            <i class="bi bi-clipboard-check"></i>
+                            🚦
+                        </div>
+                        <h3 class="mb-3">Traffic Fine Analyzer</h3>
+                        <p class="mb-4">Input your traffic fine history for personalized analysis. Our AI will identify patterns, provide safety tips, and suggest behavioral changes to help you avoid future violations.</p>
+                        <a href="/traffic-fine-analyzer/" class="btn btn-success btn-lg">Analyze Traffic Fines</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="mb-4 text-center">About This Project</h3>
+                        <p>The GenAI Road Safety Application is designed to enhance road safety through two innovative AI-powered components:</p>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <h5><strong>Road Hazard Reporter</strong></h5>
+                                <p>Using Ollama Vision models, this component analyzes images of damaged roads to:</p>
+                                <ul>
+                                    <li>Classify the type of damage (potholes, cracks, etc.)</li>
+                                    <li>Assess severity and safety impact</li>
+                                    <li>Generate structured reports for authorities</li>
+                                    <li>Contribute to early detection and repair</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5><strong>Traffic Fine Analyzer (Salama AI)</strong></h5>
+                                <p>Powered by DeepSeek V3, this component analyzes traffic fine history to:</p>
+                                <ul>
+                                    <li>Identify patterns in driving behavior</li>
+                                    <li>Provide personalized safety tips</li>
+                                    <li>Offer educational information about violations</li>
+                                    <li>Calculate potential financial savings</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <p class="mt-4 text-center">Together, these components create a comprehensive solution for improving road safety, reducing accidents, and promoting responsible driving behavior.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>GenAI Road Safety Application &copy; 2025 | Developed by Basem Torky</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Road Hazard Reporter link
+            document.querySelector('.road-hazard-card .btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = '/road-hazard-reporter/';
+            });
+            
+            // Traffic Fine Analyzer link
+            document.querySelector('.traffic-fine-card .btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = '/traffic-fine-analyzer/';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+services:
+  # Frontend service for the main application
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - road-hazard-api
+      - traffic-fine-api
+    networks:
+      - genai-road-safety-network
+
+  # Road Hazard Reporter API service
+  road-hazard-api:
+    build:
+      context: ./road_hazard_reporter
+    ports:
+      - "8001:8080"
+    environment:
+      - OLLAMA_API_URL=http://ollama:11434/api/chat
+      - OLLAMA_MODEL=llama3.2-vision
+    depends_on:
+      - ollama
+    networks:
+      - genai-road-safety-network
+
+  # Traffic Fine Analyzer API service
+  traffic-fine-api:
+    build:
+      context: ./traffic_fine_analyzer
+    ports:
+      - "8002:8080"
+    environment:
+      - DEEPSEEK_API_URL=http://deepseek-mock:8080/v1/chat/completions
+      - DEEPSEEK_API_KEY=mock-api-key
+    depends_on:
+      - deepseek-mock
+    networks:
+      - genai-road-safety-network
+
+  # Ollama service for vision models
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    command: serve
+    networks:
+      - genai-road-safety-network
+
+  # DeepSeek mock service (for local development)
+  deepseek-mock:
+    build:
+      context: ./deepseek_mock
+    ports:
+      - "8003:8080"
+    networks:
+      - genai-road-safety-network
+
+networks:
+  genai-road-safety-network:
+    driver: bridge
+
+volumes:
+  ollama-data:
