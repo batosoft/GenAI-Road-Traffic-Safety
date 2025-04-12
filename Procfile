@@ -1,0 +1,1 @@
+web: gunicorn --chdir safety_ai_ssistant app:app

@@ -573,27 +573,8 @@ def admin_dashboard():
 
 # Run the application
 if __name__ == '__main__':
-    import socket
-    from contextlib import closing
-    
-    def find_free_port(start_port, max_attempts=10):
-        for port in range(start_port, start_port + max_attempts):
-            with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
-                try:
-                    sock.bind(('0.0.0.0', port))
-                    return port
-                except socket.error:
-                    continue
-        return None
-    
-    # Try to find an available port starting from 8002
-    port = find_free_port(8002)
-    if port is None:
-        print("Could not find an available port. Please free up port 8002 or nearby ports.")
-        exit(1)
-    
-    print(f"Starting server on port {port}")
-    app.run(host='0.0.0.0', port=port)
+    port = int(os.environ.get('PORT', 8002))
+    app.run(host='0.0.0.0', port=port, debug=False)
 
 # Main entry point
 if __name__ == '__main__':
