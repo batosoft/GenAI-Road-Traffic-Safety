@@ -399,6 +399,38 @@ def generate_insights(analysis_result):
     Format the response as a paragraph addressing the driver directly with practical advice.
     """
     
+    def get_fallback_insights(analysis):
+        # Static fallback insights based on common patterns
+        if analysis['most_common_violation'] == 'Exceeding maximum speed limit':
+            return "Hey there! It looks like you've got some traffic fines to pay off, and we want to help you avoid getting more in the future. Firstly, let's talk about speeding - it's your most common violation, so make sure to keep an eye on your speedometer, especially when driving on Sheikh Zayed Road (you got fined there three times!). Also, since our analysis shows that the severity of fines is decreasing overall, don't get too comfortable! I means you're not getting as big of a hit in the wallet for each fine, but it doesn't mean you should take more risks. Consider setting reminders to double-check your speed and stay alert, especially during peak hours (23:00, to be exact), when most of these fines were issued."
+        elif analysis['total_fines'] >= 3:
+            return "I notice you've accumulated several traffic fines recently. While they vary in type, it's important to develop more cautious driving habits. Consider each fine as a learning opportunity - what was happening when you received them? Were you rushing? Distracted? Taking a moment to reflect on these patterns can help prevent future violations. Remember, safe driving isn't just about following rules - it's about protecting yourself and others on the road."
+        else:
+            return "Looking at your traffic fine history, I can see there's room for improvement in your driving habits. While the violations aren't severe, it's important to stay vigilant and follow traffic rules consistently. Remember that prevention is always better than paying fines - take a moment before each journey to ensure you're well-prepared and focused on safe driving."
+    
+    try:
+        # Call Ollama API
+        response = requests.post(
+            OLLAMA_API_URL,
+            json={
+                "model": OLLAMA_MODEL,
+                "prompt": prompt,
+                "stream": False
+            },
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            return result.get('response', get_fallback_insights(analysis_result))
+        else:
+            print(f"Error from Ollama API: {response.status_code} - {response.text}")
+            return get_fallback_insights(analysis_result)
+    
+    except Exception as e:
+        print(f"Exception when calling Ollama API: {e}")
+        return get_fallback_insights(analysis_result)
+    
     try:
         # Call Ollama API
         response = requests.post(
