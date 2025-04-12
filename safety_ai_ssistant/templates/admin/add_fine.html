@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salama AI Assistant - Add Fine</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>Add New Traffic Fine</h1>
+        </div>
+        
+        <div class="admin-menu">
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Dashboard</a>
+            <a href="{{ url_for('admin_fines') }}" class="btn btn-secondary">Manage Fines</a>
+        </div>
+        
+        {% if error %}
+        <div class="alert alert-danger">
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        <div class="admin-content">
+            <form class="admin-form" method="POST" action="{{ url_for('admin_add_fine') }}">
+                <div class="form-group">
+                    <label for="user_id">User ID</label>
+                    <input type="text" id="user_id" name="user_id" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="vehicle_info">Vehicle Information</label>
+                    <input type="text" id="vehicle_info" name="vehicle_info" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="issue_date">Issue Date</label>
+                    <input type="datetime-local" id="issue_date" name="issue_date" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="amount">Amount (AED)</label>
+                    <input type="number" id="amount" name="amount" class="form-control" step="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="source">Source</label>
+                    <select id="source" name="source" class="form-control" required>
+                        <option value="">Select Source</option>
+                        <option value="Dubai Police">Dubai Police</option>
+                        <option value="Sharjah Municipality">Sharjah Municipality</option>
+                        <option value="Abu Dhabi Police">Abu Dhabi Police</option>
+                        <option value="RTA">RTA</option>
+                        <option value="Ajman Police">Ajman Police</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="black_points">Black Points</label>
+                    <input type="number" id="black_points" name="black_points" class="form-control" value="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="violation_details">Violation Details</label>
+                    <select id="violation_details" name="violation_details" class="form-control" required>
+                        <option value="">Select Violation Type</option>
+                        <option value="Exceeding maximum speed limit">Exceeding maximum speed limit</option>
+                        <option value="Parking violation">Parking violation</option>
+                        <option value="Using phone while driving">Using phone while driving</option>
+                        <option value="Running red light">Running red light</option>
+                        <option value="Not wearing seatbelt">Not wearing seatbelt</option>
+                        <option value="Driving with expired registration">Driving with expired registration</option>
+                        <option value="Illegal lane change">Illegal lane change</option>
+                        <option value="Driving against traffic">Driving against traffic</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fine_number">Fine Number</label>
+                    <input type="text" id="fine_number" name="fine_number" class="form-control" required>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save Fine</button>
+                    <a href="{{ url_for('admin_fines') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

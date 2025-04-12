@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salama AI Assistant - Traffic Safety Analysis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .header img {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+        }
+        .header h1 {
+            color: #00796b;
+            margin: 0;
+            font-size: 24px;
+        }
+        .summary-section {
+            background-color: #e8f5e9;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+        }
+        .summary-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #00796b;
+        }
+        .summary-stats {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .stat-card {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex: 1;
+            min-width: 200px;
+        }
+        .stat-card h3 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 16px;
+            color: #555;
+        }
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #00796b;
+        }
+        .stat-card .trend {
+            font-size: 14px;
+            color: #777;
+            margin-top: 5px;
+        }
+        .trend.up {
+            color: #e53935;
+        }
+        .trend.down {
+            color: #43a047;
+        }
+        .analysis-section {
+            margin-bottom: 25px;
+        }
+        .analysis-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #00796b;
+        }
+        .pattern-card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+        .pattern-card h3 {
+            margin-top: 0;
+            color: #e53935;
+            display: flex;
+            align-items: center;
+        }
+        .pattern-card h3 img {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+        .pattern-card p {
+            margin-bottom: 0;
+            line-height: 1.5;
+        }
+        .tips-section {
+            background-color: #e3f2fd;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .tips-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1565c0;
+        }
+        .tip-card {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+        .tip-card:last-child {
+            margin-bottom: 0;
+        }
+        .tip-card h3 {
+            margin-top: 0;
+            color: #1565c0;
+            display: flex;
+            align-items: center;
+        }
+        .tip-card h3 img {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+        .tip-card p {
+            margin-bottom: 0;
+            line-height: 1.5;
+        }
+        .back-button {
+            background-color: #00796b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            display: inline-block;
+        }
+        .chart-container {
+            height: 200px;
+            margin: 20px 0;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 15px;
+            position: relative;
+        }
+        .chart-bar {
+            position: absolute;
+            bottom: 40px;
+            width: 40px;
+            background-color: #00796b;
+            border-radius: 3px 3px 0 0;
+        }
+        .chart-label {
+            position: absolute;
+            bottom: 15px;
+            text-align: center;
+            width: 40px;
+            font-size: 12px;
+        }
+        .chart-title {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-weight: 600;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzAwNzk2YiI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTEgMTdoLTJ2LTJoMXYtNWgtMXYtMmgzdjd6bS0xLTExYy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTMTEuMTcgNSAxMiA1czEuNS42NyAxLjUgMS41UzEyLjgzIDggMTIgOHoiLz48L3N2Zz4=" alt="Salama AI Icon">
+            <h1>Salama AI Assistant</h1>
+        </div>
+        
+        <div class="summary-section">
+            <div class="summary-title">Your Traffic Fine Summary</div>
+            <div class="summary-stats">
+                <div class="stat-card">
+                    <h3>Total Fines (Last 12 Months)</h3>
+                    <div class="value">3</div>
+                    <div class="trend">Same as previous period</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Amount</h3>
+                    <div class="value">AED 1,100</div>
+                    <div class="trend up">+15% from previous period</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Most Common Violation</h3>
+                    <div class="value">Speeding</div>
+                    <div class="trend">2 out of 3 fines</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">Your Fine History (Last 12 Months)</div>
+                <div class="chart-bar" style="height: 80px; left: 100px;"></div>
+                <div class="chart-label" style="left: 100px;">Jun</div>
+                <div class="chart-bar" style="height: 40px; left: 200px;"></div>
+                <div class="chart-label" style="left: 200px;">Nov</div>
+                <div class="chart-bar" style="height: 40px; left: 300px;"></div>
+                <div class="chart-label" style="left: 300px;">Dec</div>
+            </div>
+        </div>
+        
+        <div class="analysis-section">
+            <div class="analysis-title">Personalized Analysis</div>
+            <div class="pattern-card">
+                <h3>
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2U1MzkzNSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTEgMTVoLTJ2LTJoMnYyem0wLTRoLTJWN2gydjZ6Ii8+PC9zdmc+" alt="Warning Icon">
+                    Speeding Pattern Detected
+                </h3>
+                <p>You have received 2 speeding fines in the last 12 months, with the most recent one exceeding the speed limit by more than 30 km/h on Sheikh Mohammad Bin Zayed Road. This pattern suggests a potential risk of more serious violations in the future.</p>
+            </div>
+            <div class="pattern-card">
+                <h3>
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2U1MzkzNSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTEgMTVoLTJ2LTJoMnYyem0wLTRoLTJWN2gydjZ6Ii8+PC9zdmc+" alt="Warning Icon">
+                    High-Value Fine Risk
+                </h3>
+                <p>Your most recent fine (AED 600) is significantly higher than your previous fines. This escalation pattern often indicates increasing severity of violations, which could lead to more serious consequences including black points or vehicle impoundment if the trend continues.</p>
+            </div>
+        </div>
+        
+        <div class="tips-section">
+            <div class="tips-title">Personalized Safety Tips</div>
+            <div class="tip-card">
+                <h3>
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzE1NjVjMCI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bS0yIDE1bC01LTUgMS40MS0xLjQxTDEwIDE0LjE3bDcuNTktNy41OUwxOSA4bC05IDl6Ii8+PC9zdmc+" alt="Tip Icon">
+                    Speed Management on Sheikh Mohammad Bin Zayed Road
+                </h3>
+                <p>This road has multiple speed cameras and varying speed limits. Consider using cruise control to maintain a consistent speed, especially in the sections near interchanges where speed limits may change. Remember that the displayed speed limit on this road already includes the 20 km/h buffer, so exceeding it will result in immediate fines.</p>
+            </div>
+            <div class="tip-card">
+                <h3>
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzE1NjVjMCI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bS0yIDE1bC01LTUgMS40MS0xLjQxTDEwIDE0LjE3bDcuNTktNy41OUwxOSA4bC05IDl6Ii8+PC9zdmc+" alt="Tip Icon">
+                    Time Management for Safer Driving
+                </h3>
+                <p>Your speeding violation occurred at 1:22 pm, which is often a time when people are rushing after lunch or to meetings. Consider adjusting your schedule to allow for extra travel time during midday hours to avoid the temptation to speed. Studies show that leaving just 5 minutes earlier can significantly reduce the likelihood of speeding violations.</p>
+            </div>
+            <div class="tip-card">
+                <h3>
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzE1NjVjMCI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bS0yIDE1bC01LTUgMS40MS0xLjQxTDEwIDE0LjE3bDcuNTktNy41OUwxOSA4bC05IDl6Ii8+PC9zdmc+" alt="Tip Icon">
+                    RTA Smart Driver Program
+                </h3>
+                <p>Based on your fine history, you may benefit from the RTA Smart Driver Program which offers personalized coaching for drivers with multiple speeding violations. Completing this program can not only improve your driving habits but may also make you eligible for reduced insurance premiums. The next available session starts on April 15, 2025.</p>
+            </div>
+        </div>
+        
+        <button class="back-button">Return to Fines Page</button>
+    </div>
+</body>
+</html>

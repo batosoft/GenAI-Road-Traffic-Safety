@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salama AI Assistant - Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>Salama AI Assistant - Admin Dashboard</h1>
+        </div>
+        
+        <div class="admin-menu">
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary">Dashboard</a>
+            <a href="{{ url_for('admin_fines') }}" class="btn btn-secondary">Manage Fines</a>
+        </div>
+        
+        <div class="admin-content">
+            <div class="admin-card">
+                <h2>Welcome to Salama AI Assistant Administration</h2>
+                <p>This dashboard allows you to manage traffic fine data for the Salama AI Assistant application.</p>
+                <p>Use the navigation menu above to access different sections of the admin interface.</p>
+            </div>
+            
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <h3>Total Fines</h3>
+                    <div class="value">{{ total_fines|default('0') }}</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Total Users</h3>
+                    <div class="value">{{ total_users|default('0') }}</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Total Fine Amount</h3>
+                    <div class="value">AED {{ total_amount|default('0') }}</div>
+                </div>
+            </div>
+            
+            <div class="admin-actions">
+                <h2>Quick Actions</h2>
+                <a href="{{ url_for('admin_add_fine') }}" class="btn btn-primary">Add New Fine</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

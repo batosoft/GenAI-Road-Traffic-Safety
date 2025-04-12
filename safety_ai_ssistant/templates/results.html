@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salama AI Assistant - Traffic Safety Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzAwNzk2YiI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTEgMTdoLTJ2LTJoMXYtNWgtMXYtMmgzdjd6bS0xLTExYy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTMTEuMTcgNSAxMiA1czEuNS42NyAxLjUgMS41UzEyLjgzIDggMTIgOHoiLz48L3N2Zz4=" alt="Salama AI Icon">
+            <h1>Salama AI Assistant</h1>
+        </div>
+        
+        <!-- Hidden element to store analysis data for JavaScript -->
+        <script type="application/json" id="analysis-data">
+            {{ {"total_fines": analysis.total_fines, "fine_history": fine_history}|tojson }}
+        </script>
+        
+        <div class="summary-section">
+            <div class="summary-title">Your Traffic Fine Summary</div>
+            <div class="summary-stats">
+                <div class="stat-card">
+                    <h3>Total Fines (Last 12 Months)</h3>
+                    <div class="value">{{ analysis.total_fines }}</div>
+                    <div class="trend">{% if analysis.severity_trend == 'increasing' %}Increasing trend{% elif analysis.severity_trend == 'decreasing' %}Decreasing trend{% else %}Stable{% endif %}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Amount</h3>
+                    <div class="value">AED {{ analysis.total_amount|round|int }}</div>
+                    <div class="trend {% if analysis.severity_trend == 'increasing' %}up{% elif analysis.severity_trend == 'decreasing' %}down{% endif %}">{% if analysis.severity_trend == 'increasing' %}↑{% elif analysis.severity_trend == 'decreasing' %}↓{% endif %} from previous period</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Most Common Violation</h3>
+                    <div class="value">{{ analysis.most_common_violation or 'N/A' }}</div>
+                    {% if analysis.common_violations and analysis.common_violations|length > 0 %}
+                    <div class="trend">{{ analysis.common_violations[0].count }} out of {{ analysis.total_fines }} fines</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">Your Fine History (Last 12 Months)</div>
+                <!-- Chart will be dynamically generated -->
+                {% if analysis.total_fines > 0 %}
+                <!-- Placeholder for chart -->
+                <div id="fine-history-chart"></div>
+                {% else %}
+                <div style="text-align: center; padding: 50px 0;">No fine history available to display</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="analysis-section">
+            <div class="analysis-title">Personalized Analysis</div>
+            {% if analysis.total_fines > 0 %}
+                {% if analysis.most_common_violation %}
+                <div class="pattern-card">
+                    <h3>
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2U1MzkzNSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTEgMTVoLTJ2LTJoMnYyem0wLTRoLTJWN2gydjZ6Ii8+PC9zdmc+" alt="Warning Icon">
+                        {{ analysis.most_common_violation }} Pattern Detected
+                    </h3>
+                    <p>You have received {% for violation in analysis.common_violations %}{% if violation.violation == analysis.most_common_violation %}{{ violation.count }}{% endif %}{% endfor %} {{ analysis.most_common_violation }} fines in the analyzed period. This pattern suggests a potential risk of more serious violations in the future.</p>
+                </div>
+                {% endif %}
+                
+                {% if analysis.location_pattern %}
+                <div class="pattern-card">
+                    <h3>
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2U1MzkzNSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTEgMTVoLTJ2LTJoMnYyem0wLTRoLTJWN2gydjZ6Ii8+PC9zdmc+" alt="Warning Icon">
+                        Location Pattern: {{ analysis.location_pattern.common_location }}
+                    </h3>
+                    <p>{{ analysis.location_pattern.percentage }}% of your fines occurred at {{ analysis.location_pattern.common_location }}. This location pattern may indicate specific driving challenges in this area.</p>
+                </div>
+                {% endif %}
+                
+                {% if analysis.time_pattern %}
+                <div class="pattern-card">
+                    <h3>
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2U1MzkzNSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTEgMTVoLTJ2LTJoMnYyem0wLTRoLTJWN2gydjZ6Ii8+PC9zdmc+" alt="Warning Icon">
+                        Time Pattern: {{ analysis.time_pattern.peak_hour }}:00 Hour
+                    </h3>
+                    <p>{{ analysis.time_pattern.percentage }}% of your fines occurred around {{ analysis.time_pattern.peak_hour }}:00. This time pattern may be related to your daily schedule and traffic conditions.</p>
+                </div>
+                {% endif %}
+                
+                {% if analysis.severity_trend == 'increasing' %}
+                <div class="pattern-card">
+                    <h3>
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2U1MzkzNSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTEgMTVoLTJ2LTJoMnYyem0wLTRoLTJWN2gydjZ6Ii8+PC9zdmc+" alt="Warning Icon">
+                        Increasing Fine Severity
+                    </h3>
+                    <p>Your fine amounts are increasing over time. This escalation pattern often indicates increasing severity of violations, which could lead to more serious consequences including black points or vehicle impoundment if the trend continues.</p>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="pattern-card">
+                    <h3>
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzQzYTA0NyI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bS0yIDE1bC01LTUgMS40MS0xLjQxTDEwIDE0LjE3bDcuNTktNy41OUwxOSA4bC05IDl6Ii8+PC9zdmc+" alt="Success Icon">
+                        Good Driving Record
+                    </h3>
+                    <p>You have no traffic fines in the analyzed period. Keep up the good driving habits!</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="tips-section">
+            <div class="tips-title">Personalized Safety Tips</div>
+            {% if safety_tips|length > 0 %}
+                {% for tip in safety_tips %}
+                <div class="tip-card">
+                    <h3>
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzE1NjVjMCI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bS0yIDE1bC01LTUgMS40MS0xLjQxTDEwIDE0LjE3bDcuNTktNy41OUwxOSA4bC05IDl6Ii8+PC9zdmc+" alt="Tip Icon">
+                        {{ tip.title }}
+                    </h3>
+                    <p>{{ tip.description }}</p>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="tip-card">
+                    <h3>
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzE1NjVjMCI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bS0yIDE1bC01LTUgMS40MS0xLjQxTDEwIDE0LjE3bDcuNTktNy41OUwxOSA4bC05IDl6Ii8+PC9zdmc+" alt="Tip Icon">
+                        Safe Driving Practices
+                    </h3>
+                    <p>Maintain a safe distance from vehicles ahead, use indicators when changing lanes, and regularly check your vehicle's condition to ensure safety on the road.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        {% if insights %}
+        <div class="insights-section">
+            <div class="summary-title">AI-Generated Insights</div>
+            <div class="pattern-card">
+                <p>{{ insights }}</p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <button class="back-button" onclick="window.location.href='/'">Return to Fines Page</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
