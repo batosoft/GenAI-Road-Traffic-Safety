@@ -406,19 +406,28 @@ def generate_insights(analysis_result):
             
             # Add pattern-based insights with safe dictionary access
             time_pattern = analysis.get('time_pattern', {})
-            if isinstance(time_pattern, dict) and 'peak_hour' in time_pattern:
+            if isinstance(time_pattern, dict) and time_pattern.get('peak_hour') is not None:
                 insights.append(f"Most violations occur around {time_pattern['peak_hour']}:00. Consider adjusting your schedule.")
             
             location_pattern = analysis.get('location_pattern', {})
-            if isinstance(location_pattern, dict) and 'common_location' in location_pattern:
+            if isinstance(location_pattern, dict) and location_pattern.get('common_location'):
                 insights.append(f"Exercise extra caution on {location_pattern['common_location']}, where multiple violations occurred.")
             
             # Add severity trend insights with safe access
-            if analysis.get('severity_trend') == 'increasing':
+            severity_trend = analysis.get('severity_trend')
+            if severity_trend == 'increasing':
                 insights.append("Your fine amounts show an increasing trend. Consider reviewing your driving habits.")
+            elif severity_trend == 'stable':
+                insights.append("Your violation pattern appears stable. Keep monitoring your driving habits to prevent future incidents.")
             
             # Return combined insights or default message
-            return " ".join(insights) if insights else "Drive safely by following traffic rules and maintaining awareness of your surroundings. Regular self-assessment of driving habits helps prevent violations."
+            if insights:
+                return " ".join(insights)
+            else:
+                total_fines = analysis.get('total_fines', 0)
+                if total_fines > 0:
+                    return f"You have {total_fines} traffic violation(s). Drive safely by following traffic rules and maintaining awareness of your surroundings."
+                return "Drive safely by following traffic rules and maintaining awareness of your surroundings. Regular self-assessment of driving habits helps prevent violations."
                 
         except Exception as e:
             print(f"Error generating fallback insights: {e}")
