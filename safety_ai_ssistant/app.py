@@ -386,13 +386,43 @@ def generate_insights(analysis_result):
         return "No fine history available to generate insights."
     
     def get_fallback_insights(analysis):
-        # Static fallback insights based on common patterns
-        if analysis['most_common_violation'] == 'Exceeding maximum speed limit':
-            return "Hey there! It looks like you've got some traffic fines to pay off, and we want to help you avoid getting more in the future. Firstly, let's talk about speeding - it's your most common violation, so make sure to keep an eye on your speedometer, especially when driving on Sheikh Zayed Road (you got fined there three times!). Also, since our analysis shows that the severity of fines is decreasing overall, don't get too comfortable! I means you're not getting as big of a hit in the wallet for each fine, but it doesn't mean you should take more risks. Consider setting reminders to double-check your speed and stay alert, especially during peak hours (23:00, to be exact), when most of these fines were issued."
-        elif analysis['total_fines'] >= 3:
-            return "I notice you've accumulated several traffic fines recently. While they vary in type, it's important to develop more cautious driving habits. Consider each fine as a learning opportunity - what was happening when you received them? Were you rushing? Distracted? Taking a moment to reflect on these patterns can help prevent future violations. Remember, safe driving isn't just about following rules - it's about protecting yourself and others on the road."
-        else:
-            return "Looking at your traffic fine history, I can see there's room for improvement in your driving habits. While the violations aren't severe, it's important to stay vigilant and follow traffic rules consistently. Remember that prevention is always better than paying fines - take a moment before each journey to ensure you're well-prepared and focused on safe driving."
+        try:
+            # Validate analysis data
+            if not analysis or not isinstance(analysis, dict):
+                return "We're analyzing your driving patterns to provide personalized safety recommendations. Please ensure all your fine details are up to date for the most accurate insights."
+            
+            # Build insights based on available data
+            insights = []
+            
+            # Add violation-specific insights
+            if analysis.get('most_common_violation'):
+                if analysis['most_common_violation'] == 'Exceeding maximum speed limit':
+                    insights.append("I notice speeding is your most frequent violation. Consider using cruise control and leaving earlier to avoid rushing.")
+                elif analysis['most_common_violation'] == 'Parking violation':
+                    insights.append("Parking violations seem to be a recurring issue. Always check for parking signs and use the RTA parking app.")
+                elif analysis['most_common_violation'] == 'Using phone while driving':
+                    insights.append("Using your phone while driving is dangerous. Enable 'Do Not Disturb' mode when driving to avoid distractions.")
+            
+            # Add pattern-based insights
+            if analysis.get('time_pattern') and analysis['time_pattern'].get('peak_hour'):
+                insights.append(f"Many of your violations occur around {analysis['time_pattern']['peak_hour']}:00. Consider adjusting your schedule to avoid rush hours.")
+            
+            if analysis.get('location_pattern') and analysis['location_pattern'].get('common_location'):
+                insights.append(f"Be extra cautious when driving on {analysis['location_pattern']['common_location']}, where you've received multiple fines.")
+            
+            # Add severity trend insights
+            if analysis.get('severity_trend') == 'increasing':
+                insights.append("Your fine amounts are increasing. This might be a good time to review and improve your driving habits.")
+            
+            # Combine insights or use default message
+            if insights:
+                return " ".join(insights)
+            else:
+                return "Stay safe on the roads by following traffic rules and maintaining awareness of your surroundings. Regular checks of your driving habits can help prevent future violations."
+                
+        except Exception as e:
+            print(f"Error in get_fallback_insights: {e}")
+            return "We're here to help you improve your road safety. Please check your fine history regularly and drive safely."
     
     try:
         # Create a prompt for the Ollama model
