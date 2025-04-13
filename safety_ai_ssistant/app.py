@@ -385,20 +385,6 @@ def generate_insights(analysis_result):
     if not analysis_result or analysis_result['total_fines'] == 0:
         return "No fine history available to generate insights."
     
-    # Create a prompt for the Ollama model
-    prompt = f"""Based on the following traffic fine analysis, provide 2-3 personalized safety insights in a friendly, helpful tone:
-    
-    Total Fines: {analysis_result['total_fines']}
-    Total Amount: AED {analysis_result['total_amount']}
-    Most Common Violation: {analysis_result['most_common_violation'] or 'None'}
-    Severity Trend: {analysis_result['severity_trend'] or 'Stable'}
-    
-    Time Pattern: {analysis_result['time_pattern'] if analysis_result['time_pattern'] else 'No significant time pattern'}
-    Location Pattern: {analysis_result['location_pattern'] if analysis_result['location_pattern'] else 'No significant location pattern'}
-    
-    Format the response as a paragraph addressing the driver directly with practical advice.
-    """
-    
     def get_fallback_insights(analysis):
         # Static fallback insights based on common patterns
         if analysis['most_common_violation'] == 'Exceeding maximum speed limit':
@@ -409,6 +395,20 @@ def generate_insights(analysis_result):
             return "Looking at your traffic fine history, I can see there's room for improvement in your driving habits. While the violations aren't severe, it's important to stay vigilant and follow traffic rules consistently. Remember that prevention is always better than paying fines - take a moment before each journey to ensure you're well-prepared and focused on safe driving."
     
     try:
+        # Create a prompt for the Ollama model
+        prompt = f"""Based on the following traffic fine analysis, provide 2-3 personalized safety insights in a friendly, helpful tone:
+        
+        Total Fines: {analysis_result['total_fines']}
+        Total Amount: AED {analysis_result['total_amount']}
+        Most Common Violation: {analysis_result['most_common_violation'] or 'None'}
+        Severity Trend: {analysis_result['severity_trend'] or 'Stable'}
+        
+        Time Pattern: {analysis_result['time_pattern'] if analysis_result['time_pattern'] else 'No significant time pattern'}
+        Location Pattern: {analysis_result['location_pattern'] if analysis_result['location_pattern'] else 'No significant location pattern'}
+        
+        Format the response as a paragraph addressing the driver directly with practical advice.
+        """
+        
         # Call Ollama API
         response = requests.post(
             OLLAMA_API_URL,
@@ -430,29 +430,6 @@ def generate_insights(analysis_result):
     except Exception as e:
         print(f"Exception when calling Ollama API: {e}")
         return get_fallback_insights(analysis_result)
-    
-    try:
-        # Call Ollama API
-        response = requests.post(
-            OLLAMA_API_URL,
-            json={
-                "model": OLLAMA_MODEL,
-                "prompt": prompt,
-                "stream": False
-            },
-            timeout=30
-        )
-        
-        if response.status_code == 200:
-            result = response.json()
-            return result.get('response', "Unable to generate insights at this time.")
-        else:
-            print(f"Error from Ollama API: {response.status_code} - {response.text}")
-            return "Unable to generate insights at this time. Please try again later."
-    
-    except Exception as e:
-        print(f"Exception when calling Ollama API: {e}")
-        return "Unable to generate insights at this time. Please try again later."
 
 # Routes
 @app.route('/')
