@@ -448,22 +448,32 @@ def generate_insights(analysis_result):
         Format the response as a paragraph addressing the driver directly with practical advice.
         """
         
-        # Call Ollama API
-        response = requests.post(
-            OLLAMA_API_URL,
-            json={
-                "model": OLLAMA_MODEL,
-                "prompt": prompt,
-                "stream": False
-            },
-            timeout=30
-        )
-        
-        if response.status_code == 200:
-            result = response.json()
-            return result.get('response', get_fallback_insights(analysis_result))
-        else:
-            print(f"Error from Ollama API: {response.status_code} - {response.text}")
+        # Call Ollama API with proper timeout and error handling
+        try:
+            response = requests.post(
+                OLLAMA_API_URL,
+                json={
+                    "model": OLLAMA_MODEL,
+                    "prompt": prompt,
+                    "stream": False
+                },
+                timeout=10  # Reduced timeout to prevent long waits
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                if not result or 'response' not in result:
+                    print("Invalid response format from Ollama API")
+                    return get_fallback_insights(analysis_result)
+                return result['response']
+            else:
+                print(f"Error from Ollama API: {response.status_code} - {response.text}")
+                return get_fallback_insights(analysis_result)
+        except requests.exceptions.Timeout:
+            print("Timeout while calling Ollama API")
+            return get_fallback_insights(analysis_result)
+        except requests.exceptions.RequestException as e:
+            print(f"Network error while calling Ollama API: {e}")
             return get_fallback_insights(analysis_result)
     
     except Exception as e:
