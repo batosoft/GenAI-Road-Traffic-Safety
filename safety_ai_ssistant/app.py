@@ -389,40 +389,40 @@ def generate_insights(analysis_result):
         try:
             # Validate analysis data
             if not analysis or not isinstance(analysis, dict):
-                return "We're analyzing your driving patterns to provide personalized safety recommendations. Please ensure all your fine details are up to date for the most accurate insights."
+                return "Based on your driving history, we'll provide personalized safety recommendations once all your fine details are processed."
             
-            # Build insights based on available data
             insights = []
             
-            # Add violation-specific insights
-            if analysis.get('most_common_violation'):
-                if analysis['most_common_violation'] == 'Exceeding maximum speed limit':
-                    insights.append("I notice speeding is your most frequent violation. Consider using cruise control and leaving earlier to avoid rushing.")
-                elif analysis['most_common_violation'] == 'Parking violation':
-                    insights.append("Parking violations seem to be a recurring issue. Always check for parking signs and use the RTA parking app.")
-                elif analysis['most_common_violation'] == 'Using phone while driving':
-                    insights.append("Using your phone while driving is dangerous. Enable 'Do Not Disturb' mode when driving to avoid distractions.")
+            # Add violation-specific insights with proper null checks
+            most_common_violation = analysis.get('most_common_violation')
+            if most_common_violation:
+                violation_insights = {
+                    'Exceeding maximum speed limit': "Your most frequent violation is speeding. Consider using cruise control and leaving earlier to avoid rushing.",
+                    'Parking violation': "Parking violations are your main concern. Always check for parking signs and use the RTA parking app.",
+                    'Using phone while driving': "Phone usage while driving is your primary violation. Enable 'Do Not Disturb' mode for safer driving."
+                }
+                if insight := violation_insights.get(most_common_violation):
+                    insights.append(insight)
             
-            # Add pattern-based insights
-            if analysis.get('time_pattern') and analysis['time_pattern'].get('peak_hour'):
-                insights.append(f"Many of your violations occur around {analysis['time_pattern']['peak_hour']}:00. Consider adjusting your schedule to avoid rush hours.")
+            # Add pattern-based insights with safe dictionary access
+            time_pattern = analysis.get('time_pattern', {})
+            if isinstance(time_pattern, dict) and 'peak_hour' in time_pattern:
+                insights.append(f"Most violations occur around {time_pattern['peak_hour']}:00. Consider adjusting your schedule.")
             
-            if analysis.get('location_pattern') and analysis['location_pattern'].get('common_location'):
-                insights.append(f"Be extra cautious when driving on {analysis['location_pattern']['common_location']}, where you've received multiple fines.")
+            location_pattern = analysis.get('location_pattern', {})
+            if isinstance(location_pattern, dict) and 'common_location' in location_pattern:
+                insights.append(f"Exercise extra caution on {location_pattern['common_location']}, where multiple violations occurred.")
             
-            # Add severity trend insights
+            # Add severity trend insights with safe access
             if analysis.get('severity_trend') == 'increasing':
-                insights.append("Your fine amounts are increasing. This might be a good time to review and improve your driving habits.")
+                insights.append("Your fine amounts show an increasing trend. Consider reviewing your driving habits.")
             
-            # Combine insights or use default message
-            if insights:
-                return " ".join(insights)
-            else:
-                return "Stay safe on the roads by following traffic rules and maintaining awareness of your surroundings. Regular checks of your driving habits can help prevent future violations."
+            # Return combined insights or default message
+            return " ".join(insights) if insights else "Drive safely by following traffic rules and maintaining awareness of your surroundings. Regular self-assessment of driving habits helps prevent violations."
                 
         except Exception as e:
-            print(f"Error in get_fallback_insights: {e}")
-            return "We're here to help you improve your road safety. Please check your fine history regularly and drive safely."
+            print(f"Error generating fallback insights: {e}")
+            return "Stay safe on the roads. Follow traffic rules and maintain regular checks of your driving record."
     
     try:
         # Create a prompt for the Ollama model
